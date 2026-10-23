@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>С днём рождения</title>
+<style>
+  :root{
+    --paper:#f7eee0;
+    --card:rgba(255,253,247,.66);
+    --ink:#4b3a2f;
+    --ink-soft:#7d6a58;
+    --line:rgba(120,92,64,.28);
+    --terracotta:#c8694a;
+    --mustard:#d3a542;
+
+    --pw: clamp(108px, 26vh, 250px);
+    --gap: clamp(7px, 1.5vh, 15px);
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+
+  body{
+    margin:0;
+    height:100dvh;
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    color:var(--ink);
+    display:grid;
+    place-items:center;
+    padding:clamp(8px,1.8vh,22px);
+    overflow:hidden;
+
+    background-color:var(--paper);
+    background-image:
+      radial-gradient(760px 560px at 6% -6%,  rgba(255,214,130,.75), transparent 60%),
+      radial-gradient(700px 540px at 102% 6%,  rgba(255,150,195,.55), transparent 62%),
+      radial-gradient(720px 560px at -6% 104%, rgba(150,225,200,.5),  transparent 62%),
+      radial-gradient(760px 560px at 104% 102%,rgba(190,165,255,.5), transparent 62%),
+      radial-gradient(680px 500px at 55% 50%,  rgba(255,225,180,.35), transparent 65%),
+      linear-gradient(166deg,#fdf8f0 0%, #f5e9d8 58%, #eeddc8 100%);
+    background-attachment:fixed;
+  }
+
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:.13;
+    pointer-events:none;
+    z-index:1;
+  }
+
+  body::after{
+    content:"";
+    position:fixed; inset:0;
+    background:radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(91,62,38,.14) 100%);
+    pointer-events:none; z-index:2;
+  }
+
+  /* ---------- письмо ---------- */
+  .wrap{
+    position:relative;
+    z-index:5;
+    width:100%;
+    max-width:540px;
+    max-height:100%;
+    padding:clamp(12px,2.4vh,26px) clamp(14px,3vw,30px);
+    border-radius:18px;
+    background:var(--card);
+    border:1px solid rgba(216,140,168,.4);
+    box-shadow:0 22px 50px -32px rgba(80,50,25,.55);
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:var(--gap);
+  }
+  .wrap::before{
+    content:"";
+    position:absolute; inset:8px;
+    border:1px dashed var(--line);
+    border-radius:12px;
+    pointer-events:none;
+  }
+
+  /* ---------- голова ---------- */
+  .head{
+    display:flex; flex-direction:column; align-items:center; gap:1px;
+  }
+  .eyebrow{
+    margin:0;
+    font-family:"Segoe UI",system-ui,sans-serif;
+    font-size:clamp(9px,1.2vh,11px);
+    letter-spacing:.3em; text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  h1{
+    margin:0; text-align:center;
+    font-weight:500; font-style:italic;
+    font-size:clamp(20px,4vh,34px);
+    line-height:1.1;
+    background:linear-gradient(92deg,#c8694a 0%, #e0578a 45%, #b8860b 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .squiggle{ width:min(190px,58%); height:8px; }
+
+  /* ---------- фото ---------- */
+  .photo-stage{ position:relative; width:calc(var(--pw) + 16px); }
+
+  .polaroid{
+    position:relative;
+    background:#fffdf8;
+    padding:8px 8px clamp(26px,4vh,38px);
+    border-radius:6px;
+    box-shadow:0 14px 30px -20px rgba(70,45,25,.7);
+    outline:1px solid rgba(120,92,64,.14);
+    transform:rotate(-2deg);
+    transition:transform .4s ease;
+  }
+  .polaroid:hover{ transform:rotate(0deg); }
+
+  .tape{
+    position:absolute; width:56px; height:18px;
+    background:rgba(214,181,128,.5);
+    border-left:1px solid rgba(255,255,255,.4);
+    border-right:1px solid rgba(255,255,255,.4);
+  }
+  .tape.tl{ top:-8px; left:-10px; transform:rotate(-38deg); }
+  .tape.tr{ top:-8px; right:-10px; transform:rotate(38deg); }
+
+  .photo-inner{
+    position:relative; width:100%;
+    aspect-ratio:3/4; overflow:hidden; border-radius:3px;
+    background:linear-gradient(160deg,#f0e2d2,#e4d2c2);
+  }
+  #photo{
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:opacity .35s ease;
+  }
+  #photo.fade{ opacity:0; }
+
+  .caption{
+    position:absolute; left:0; right:0; bottom:clamp(6px,1.2vh,12px);
+    text-align:center; color:#8a6b52; font-style:italic;
+    font-size:clamp(11px,1.7vh,15px);
+    padding:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
+  /* ---------- текст ---------- */
+  .message{ width:100%; text-align:center; }
+  .message h2{
+    margin:0 0 5px;
+    font-weight:500;
+    font-size:clamp(16px,2.6vh,21px);
+    color:var(--terracotta);
+  }
+  .message p{
+    margin:0 auto; max-width:44ch;
+    font-size:clamp(12.5px,1.75vh,15.5px);
+    line-height:1.55; color:var(--ink-soft);
+  }
+  .tick{
+    display:block; width:46px; height:2px; margin:8px auto 0;
+    background:linear-gradient(90deg,transparent,var(--mustard),transparent);
+    border-radius:2px; opacity:.8;
+  }
+  .pop{ animation:pop .45s ease; }
+  @keyframes pop{
+    from{ opacity:0; transform:translateY(6px); }
+    to  { opacity:1; transform:translateY(0); }
+  }
+
+  /* ---------- кнопки ---------- */
+  .buttons{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; width:100%; }
+  button.gift{
+    font:inherit;
+    font-family:"Segoe UI",system-ui,sans-serif;
+    font-size:clamp(10.5px,1.4vh,12.5px);
+    cursor:pointer;
+    padding:6px 12px;
+    border-radius:999px;
+    color:var(--c, var(--ink));
+    background:transparent;
+    background:color-mix(in srgb, var(--c, #c8694a) 12%, transparent);
+    border:1.2px solid var(--c, rgba(120,92,64,.42));
+    transition:background .2s ease, color .2s ease, border-color .2s ease, transform .15s ease;
+    user-select:none;
+  }
+  button.gift:hover{
+    background:var(--c, var(--terracotta));
+    border-color:var(--c, var(--terracotta));
+    color:#fff; transform:translateY(-2px);
+  }
+  button.gift.active{ background:var(--ink); border-color:var(--ink); color:#f7eee0; }
+
+  .hint{
+    margin:-2px 0 0;
+    font-family:"Segoe UI",system-ui,sans-serif;
+    font-size:clamp(10px,1.3vh,11.5px);
+    color:var(--ink-soft); opacity:.8; text-align:center;
+  }
+
+  /* ---------- конфетти ---------- */
+  #confetti{
+    position:fixed; inset:0; width:100%; height:100%;
+    pointer-events:none; z-index:50;
+  }
+
+  /* ---------- падающие лепестки ---------- */
+  .petal{
+    position:fixed; top:-30px; z-index:30; pointer-events:none;
+    border-radius:62% 4% 62% 4%; opacity:0;
+    animation:petalFall ease-in forwards;
+  }
+  @keyframes petalFall{
+    0%  { transform:translate(0,0) rotate(0deg); opacity:0; }
+    12% { opacity:.85; }
+    55% { transform:translate(38px,52vh) rotate(160deg); opacity:.8; }
+    100%{ transform:translate(-20px,104vh) rotate(320deg); opacity:0; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+
+<main class="wrap">
+  <header class="head">
+    <p class="eyebrow">поздравление</p>
+    <h1 id="headline">С днём рождения</h1>
+    <svg class="squiggle" viewBox="0 0 240 12" aria-hidden="true">
+      <defs>
+        <linearGradient id="sqGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0"   stop-color="#e0578a"/>
+          <stop offset="0.5" stop-color="#d3a542"/>
+          <stop offset="1"   stop-color="#2f9e94"/>
+        </linearGradient>
+      </defs>
+      <path d="M2 8 Q 22 2 42 7 T 82 7 T 122 6 T 162 8 T 202 6 T 238 7"
+            fill="none" stroke="url(#sqGrad)" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
+  </header>
+
+  <div class="photo-stage">
+    <div class="polaroid">
+      <span class="tape tl"></span>
+      <span class="tape tr"></span>
+      <div class="photo-inner" id="photoInner">
+        <img id="photo" src="photo_1_2026-10-12_18-07-01.jpg" alt="">
+      </div>
+      <div class="caption" id="caption">самое тёплое фото</div>
+    </div>
+  </div>
+
+  <div class="message" id="message">
+    <h2 id="mTitle">С днём рождения!</h2>
+    <p id="mText">Пусть этот год будет добрым к тебе: тихие утра, тёплые вечера и много поводов улыбнуться.</p>
+    <span class="tick"></span>
+  </div>
+
+  <div class="buttons" id="buttons"></div>
+  <p class="hint">каждая кнопка — своё поздравление, фото и конфетти</p>
+</main>
+
+<script>
+/* =========================================================
+   НАСТРОЙКА
+   ========================================================= */
+const NAME = "";   // например "Анечка" — попадёт в заголовок
+
+const ITEMS = [
+  { btn:"главное",  title:"С днём рождения!",
+    text:"Пусть этот год будет добрым к тебе: тихие утра, тёплые вечера и много поводов улыбнуться.",
+    photo:"photo_1_2026-10-12_18-07-01.jpg",  caption:"самое тёплое фото" },
+
+  { btn:"о тебе",   title:"Ты светишься",
+    text:"Рядом с тобой как-то само собой становится теплее и спокойнее. Спасибо, что ты такая.",
+    photo:"photo_2_2026-10-12_18-07-01.jpg",  caption:"тёплый свет" },
+
+  { btn:"пожелание",title:"Пусть сбудется",
+    text:"Загадывай смело. Большие мечты любят тех, кто в них по-настоящему верит.",
+    photo:"photo_3_2026-10-12_18-07-01.jpg",  caption:"загадай желание" },
+
+  { btn:"секрет",   title:"Маленький секрет",
+    text:"Ты стоишь гораздо большего, чем иногда думаешь о себе. Пожалуйста, помни это.",
+    photo:"photo_4_2026-10-12_18-07-01.jpg",  caption:"только между нами" },
+
+  { btn:"обнимаю",  title:"Обнимаю крепко",
+    text:"Так, чтобы стало спокойно и хорошо, а все тревоги отступили. С днём рождения, солнышко.",
+    photo:"photo_5_2026-10-12_18-07-01.jpg",  caption:"обнимаю" },
+
+  { btn:"на удачу", title:"Удача рядом",
+    text:"Пусть всё задуманное получится. А если что-то не сразу — значит, готовится что-то получше.",
+    photo:"photo_6_2026-10-12_18-07-01.jpg",  caption:"лови удачу" },
+
+  { btn:"мечты",    title:"Мечтай смело",
+    text:"В этом мире точно есть место для твоих желаний. Просто позволь им случиться.",
+    photo:"photo_7_2026-10-12_18-07-01.jpg",  caption:"большие мечты" },
+
+  { btn:"праздник", title:"Сегодня — твой день",
+    text:"Тортик, свечи и самые близкие рядом. Пусть этот день запомнится надолго.",
+    photo:"photo_8_2026-10-12_18-07-01.jpg",  caption:"праздничный день" },
+
+  { btn:"просто так",title:"Просто так",
+    text:"Без повода и без даты. Просто потому что ты классная. Улыбнись — тебе очень идёт.",
+    photo:"photo_9_2026-10-12_18-07-01.jpg",  caption:"просто улыбнись" },
+
+  { btn:"и ещё",    title:"И ещё раз",
+    text:"Пусть хорошего в твоей жизни будет больше, чем помещается в ладони. С днём рождения!",
+    photo:"photo_10_2026-10-12_18-07-01.jpg", caption:"ещё немного тепла" }
+];
+
+const CONFETTI_COLORS = [
+  "#ff6b9d", "#ffd166", "#4ecdc4", "#a06cd5", "#ff8a5c",
+  "#7bd389", "#5ca4ff", "#e63946", "#c8694a", "#d3a542"
+];
+const PETAL_COLORS = ["#ff9ec4", "#ffc861", "#8fd9a8", "#b79cf0", "#f4a56f"];
+
+const BTN_COLORS = [
+  "#e0578a", "#e08a2b", "#2f9e94", "#8a5cf5", "#e0663c",
+  "#4f9d5a", "#3f7fd6", "#d13b4a", "#b06fc9", "#c9922b"
+];
+
+const photoEl    = document.getElementById("photo");
+const captionEl  = document.getElementById("caption");
+const messageEl  = document.getElementById("message");
+const mTitle     = document.getElementById("mTitle");
+const mText      = document.getElementById("mText");
+const buttonsEl  = document.getElementById("buttons");
+
+if (NAME) {
+  document.getElementById("headline").textContent = "С днём рождения, " + NAME;
+  document.title = "С днём рождения, " + NAME;
+}
+
+/*КНОПКИ */
+ITEMS.forEach((item, i) => {
+  const b = document.createElement("button");
+  b.className = "gift";
+  b.type = "button";
+  b.textContent = item.btn;
+  b.style.setProperty("--c", BTN_COLORS[i % BTN_COLORS.length]);
+  b.addEventListener("click", evt => {
+    document.querySelectorAll("button.gift").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    show(item, evt);
+  });
+  buttonsEl.appendChild(b);
+});
+
+function show(item, evt) {
+  photoEl.classList.add("fade");
+
+  setTimeout(() => {
+    photoEl.src = item.photo;
+    photoEl.alt = item.caption;
+    photoEl.classList.remove("fade");
+    captionEl.textContent = item.caption;
+  }, 220);
+
+  mTitle.textContent = item.title;
+  mText.textContent  = item.text;
+  messageEl.classList.remove("pop");
+  void messageEl.offsetWidth;
+  messageEl.classList.add("pop");
+
+  const r = (evt && evt.target) ? evt.target.getBoundingClientRect()
+                                : { left:innerWidth/2, top:innerHeight/2, width:0, height:0 };
+  burst(r.left + r.width/2, r.top + r.height/2, 55);
+  petalsFall(10);
+}
+
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
+const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+let W = 0, H = 0;
+let particles = [];
+let running = false;
+
+function resize(){
+  W = innerWidth; H = innerHeight;
+  canvas.width  = W * DPR;
+  canvas.height = H * DPR;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+resize();
+addEventListener("resize", resize);
+
+const SHAPES = ["strip","strip","disc","star","heart","petal","square"];
+const pick = a => a[(Math.random() * a.length) | 0];
+const MAX_PARTICLES = 320;
+
+function burst(x, y, count){
+  count = count || 50;
+  for (let i = 0; i < count; i++){
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 3 + Math.random() * 9;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 3,
+      g: 0.24 + Math.random() * 0.14,
+      drag: 0.986,
+      size: 6 + Math.random() * 8,
+      rot: Math.random() * Math.PI * 2,
+      vr: (Math.random() - 0.5) * 0.22,
+      flip: Math.random() * Math.PI * 2,
+      flipSpeed: 0.07 + Math.random() * 0.09,
+      color: pick(CONFETTI_COLORS),
+      shape: pick(SHAPES),
+      life: 1,
+      decay: 0.007 + Math.random() * 0.008
+    });
+  }
+  if (particles.length > MAX_PARTICLES) particles.splice(0, particles.length - MAX_PARTICLES);
+  startLoop();
+}
+
+/* фигуры */
+function starShape(c, s){
+  c.beginPath();
+  for (let i = 0; i < 10; i++){
+    const r = i % 2 ? s * 0.45 : s;
+    const a = -Math.PI / 2 + i * Math.PI / 5;
+    const px = Math.cos(a) * r, py = Math.sin(a) * r;
+    i ? c.lineTo(px, py) : c.moveTo(px, py);
+  }
+  c.closePath(); c.fill();
+}
+function heartShape(c, s){
+  c.beginPath();
+  c.moveTo(0, s * 0.32);
+  c.bezierCurveTo(0, 0, -s, 0, -s, s * 0.42);
+  c.bezierCurveTo(-s, s * 0.86, 0, s * 1.05, 0, s * 1.4);
+  c.bezierCurveTo(0, s * 1.05, s, s * 0.86, s, s * 0.42);
+  c.bezierCurveTo(s, 0, 0, 0, 0, s * 0.32);
+  c.closePath(); c.fill();
+}
+function petalShape(c, s){
+  c.beginPath();
+  c.moveTo(0, -s * 0.55);
+  c.bezierCurveTo( s * 0.62, -s * 0.2,  s * 0.5,  s * 0.35, 0, s * 0.55);
+  c.bezierCurveTo(-s * 0.5,  s * 0.35, -s * 0.62, -s * 0.2, 0, -s * 0.55);
+  c.closePath(); c.fill();
+}
+
+function startLoop(){
+  if (!running){ running = true; requestAnimationFrame(loop); }
+}
+
+function loop(){
+  ctx.clearRect(0, 0, W, H);
+
+  for (let i = particles.length - 1; i >= 0; i--){
+    const p = particles[i];
+
+    p.vy += p.g;
+    p.vx *= p.drag;
+    p.vy *= 0.994;
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.rot += p.vr;
+    p.flip += p.flipSpeed;
+    p.life -= p.decay;
+
+    if (p.life <= 0 || p.y > H + 70){ particles.splice(i, 1); continue; }
+
+    const s = p.size;
+    const flip = Math.cos(p.flip);
+
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+
+    switch (p.shape){
+      case "disc":
+        ctx.beginPath(); ctx.arc(0, 0, s * 0.42, 0, Math.PI * 2); ctx.fill();
+        break;
+      case "square":
+        ctx.scale(1, Math.max(0.2, Math.abs(flip)));
+        ctx.fillRect(-s * 0.24, -s * 0.24, s * 0.48, s * 0.48);
+        break;
+      case "star":
+        ctx.scale(1, Math.max(0.3, Math.abs(flip) * 0.7 + 0.3));
+        starShape(ctx, s * 0.85);
+        break;
+      case "heart":
+        ctx.scale(1, Math.max(0.3, Math.abs(flip) * 0.7 + 0.3));
+        heartShape(ctx, s * 0.6);
+        break;
+      case "petal":
+        ctx.scale(Math.max(0.3, Math.abs(flip) * 0.85 + 0.3), 1);
+        petalShape(ctx, s * 0.85);
+        break;
+      default: { // strip
+        const w = s * 0.42, h = s * 1.15;
+        ctx.scale(Math.max(0.15, Math.abs(flip)), 1);
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(-w/2, -h/2, w, h, Math.min(w, h) * 0.32);
+        else ctx.rect(-w/2, -h/2, w, h);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  if (particles.length){
+    requestAnimationFrame(loop);
+  } else {
+    ctx.clearRect(0, 0, W, H);
+    running = false;              // цикл засыпает — CPU свободен
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && particles.length) startLoop();
+});
+
+
+function petalsFall(n){
+  for (let i = 0; i < n; i++){
+    const el = document.createElement("div");
+    el.className = "petal";
+    const size = 7 + Math.random() * 7;
+    el.style.width  = size + "px";
+    el.style.height = size * 1.35 + "px";
+    el.style.left   = (Math.random() * 100) + "vw";
+    el.style.background = pick(PETAL_COLORS);
+    el.style.animationDuration = (3.4 + Math.random() * 2.2) + "s";
+    el.style.animationDelay = (Math.random() * 0.9) + "s";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 6500);
+  }
+}
+
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    burst(innerWidth * 0.5, innerHeight * 0.28, 55);
+    setTimeout(() => burst(innerWidth * 0.3, innerHeight * 0.24, 35), 180);
+    setTimeout(() => burst(innerWidth * 0.7, innerHeight * 0.24, 35), 340);
+    petalsFall(8);
+  }, 350);
+});
+
+document.body.addEventListener("click", e => {
+  if (e.target.closest("button.gift")) return;
+  burst(e.clientX, e.clientY, 45);
+});
+</script>
+</body>
+</html>
